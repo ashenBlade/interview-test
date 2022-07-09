@@ -8,6 +8,4 @@ from tgbot.handlers.user import get_user_commands
 async def register_default_commands_async(dp: Dispatcher):
     await dp.bot.set_my_commands(get_user_commands(), BotCommandScopeAllPrivateChats())
     await dp.bot.set_my_commands(get_group_commands(), BotCommandScopeAllGroupChats())
-
-    # Change to BotCommandScopeChat(chat_id) in production
     await dp.bot.set_my_commands(get_admin_commands(), BotCommandScopeAllPrivateChats())
