@@ -1,10 +1,14 @@
+import logging
+
 from aiogram import Dispatcher
 from aiogram.types import Message
 
-
-async def admin_start(message: Message):
-    await message.reply("Hello, admin!")
+logger = logging.getLogger(__name__)
 
 
-def register_admin(dp: Dispatcher):
-    dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
+async def admin_command_start(message: Message):
+    await message.answer("Hello, admin!")
+
+
+def register_admin_handlers(dp: Dispatcher):
+    dp.register_message_handler(admin_command_start, commands=['start'])

@@ -1,10 +1,8 @@
+import logging
 from aiogram import Dispatcher
-from aiogram.types import Message
+
+logger = logging.getLogger(__name__)
 
 
-async def user_start(message: Message):
-    await message.reply("Hello, user!")
-
-
-def register_user(dp: Dispatcher):
-    dp.register_message_handler(user_start, commands=["start"], state="*")
+def register_user_handlers(dp: Dispatcher):
+    pass
