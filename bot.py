@@ -11,6 +11,7 @@ from tgbot.handlers.admin import register_admin_handlers
 from tgbot.handlers.errors import register_error_handlers
 from tgbot.handlers.user import register_user_handlers
 from tgbot.middlewares.db import DbMiddleware
+from tgbot.services.commands import register_default_commands_async
 
 
 def register_all_middlewares(dp):
@@ -28,7 +29,7 @@ def register_all_handlers(dp):
 
 
 async def register_default_commands(dp):
-    pass
+    await register_default_commands_async(dp)
 
 
 async def main():
@@ -61,8 +62,6 @@ async def main():
         await dp.storage.wait_closed()
 
     try:
-        # have to setup default commands on start up
-
         await dp.start_polling()
     except Exception as ex:
         logger.error('Unhandled exception occurred in polling mode', exc_info=ex)
