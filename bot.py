@@ -36,9 +36,9 @@ def register_all_handlers(dp):
 
 
 async def register_default_commands_async(dp: Dispatcher):
+    await dp.bot.set_my_commands(get_admin_commands(), BotCommandScopeAllPrivateChats())
     await dp.bot.set_my_commands(get_user_commands(), BotCommandScopeAllPrivateChats())
     await dp.bot.set_my_commands(get_group_commands(), BotCommandScopeAllGroupChats())
-    await dp.bot.set_my_commands(get_admin_commands(), BotCommandScopeAllPrivateChats())
 
 
 def register_dependencies(config: Config):

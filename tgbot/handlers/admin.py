@@ -1,7 +1,8 @@
 import logging
 from typing import Iterable
 from aiogram import Dispatcher
-from aiogram.types import Message, BotCommand
+from aiogram.dispatcher.filters import Text
+from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.misc.command_pair import CommandPair
@@ -16,7 +17,7 @@ async def answer_not_implemented(msg: Message):
 
 
 async def admin_command_hello(msg: Message):
-    await msg.answer(f'Привет, {msg.from_user.full_name}!')
+    await msg.answer(f'Привет, {msg.from_user.full_name}!', reply_markup=get_default_admin_keyboard())
 
 
 async def admin_command_get_users(msg: Message):
@@ -44,11 +45,19 @@ async def admin_command_get_report(msg: Message):
 
 
 _admin_commands: list[CommandPair] = [
-    CommandPair(admin_command_promote, BotCommand('promote', 'Повысить пользователя до статуса админа')),
-    CommandPair(admin_command_hello, BotCommand('hello', 'Поприветствовать бота')),
-    CommandPair(admin_command_get_users, BotCommand('get_users', 'Получить список зарегистированных пользователей')),
-    CommandPair(admin_command_get_report, BotCommand('get_report', 'Получить отчет за указанный период'))
+    CommandPair(admin_command_get_report, BotCommand('get_report', 'Получить отчет за указанный период'), 'Отчет'),
+    CommandPair(admin_command_get_users, BotCommand('get_users', 'Получить список зарегистированных пользователей'), 'Пользователи'),
+    CommandPair(admin_command_promote, BotCommand('promote', 'Повысить пользователя до статуса админа'), 'Права админа'),
+    CommandPair(admin_command_hello, BotCommand('admin', 'Начать сессию админа'), 'Я админ')
 ]
+
+
+def get_default_admin_keyboard() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text=pair.text)] for pair in _admin_commands
+        ]
+    )
 
 
 def get_admin_commands() -> Iterable[BotCommand]:
@@ -58,3 +67,4 @@ def get_admin_commands() -> Iterable[BotCommand]:
 def register_admin_handlers(dp: Dispatcher):
     for p in _admin_commands:
         dp.register_message_handler(p.handler, AdminFilter(is_admin=True), commands=[p.command.command])
+        dp.register_message_handler(p.handler, AdminFilter(is_admin=True), Text(equals=p.text))
