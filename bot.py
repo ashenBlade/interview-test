@@ -17,8 +17,11 @@ from tgbot.handlers.admin import get_admin_commands
 from tgbot.handlers.group import get_group_commands
 from tgbot.handlers.user import get_user_commands
 from tgbot.middlewares.db import DbMiddleware
-from tgbot.services.locator import register_lena
+from tgbot.services.locator import register_lena, register_report_downloader, register_report_formatter
 from tgbot.services.lena import Lena
+from tgbot.services.report_downloader import YouTrackReportDownloader
+from tgbot.services.report_formatter import HtmlReportFormatter
+
 
 def register_all_middlewares(dp):
     dp.setup_middleware(DbMiddleware())
@@ -43,6 +46,8 @@ async def register_default_commands_async(dp: Dispatcher):
 
 def register_dependencies(config: Config):
     register_lena(Lena())
+    register_report_downloader(YouTrackReportDownloader())
+    register_report_formatter(HtmlReportFormatter())
 
 
 async def main():
