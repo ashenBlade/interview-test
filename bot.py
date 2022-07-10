@@ -4,6 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
+from aiogram.types import BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats
 
 from tgbot.config import load_config
 from tgbot.filters.admin import AdminFilter
@@ -12,8 +13,10 @@ from tgbot.handlers import \
     register_admin_handlers, \
     register_group_handlers, \
     register_user_handlers
+from tgbot.handlers.admin import get_admin_commands
+from tgbot.handlers.group import get_group_commands
+from tgbot.handlers.user import get_user_commands
 from tgbot.middlewares.db import DbMiddleware
-from tgbot.services.commands import register_default_commands_async
 
 
 def register_all_middlewares(dp):
@@ -31,8 +34,10 @@ def register_all_handlers(dp):
     register_error_handlers(dp)
 
 
-async def register_default_commands(dp):
-    await register_default_commands_async(dp)
+async def register_default_commands_async(dp: Dispatcher):
+    await dp.bot.set_my_commands(get_user_commands(), BotCommandScopeAllPrivateChats())
+    await dp.bot.set_my_commands(get_group_commands(), BotCommandScopeAllGroupChats())
+    await dp.bot.set_my_commands(get_admin_commands(), BotCommandScopeAllPrivateChats())
 
 
 async def main():
@@ -55,7 +60,7 @@ async def main():
     register_all_handlers(dp)
 
     try:
-        await register_default_commands(dp)
+        await register_default_commands_async(dp)
     except Exception as ex:
         logger.error('Could not register default commands', exc_info=ex)
         return
