@@ -17,6 +17,7 @@ from tgbot.handlers.admin import get_admin_commands
 from tgbot.handlers.group import get_group_commands
 from tgbot.handlers.user import get_user_commands
 from tgbot.middlewares.db import DbMiddleware
+from tgbot.services.lena import Lena, register_lena
 
 
 def register_all_middlewares(dp):
@@ -47,6 +48,9 @@ async def main():
     )
     logger = logging.getLogger(__name__)
     config = load_config(".env")
+
+    lena = Lena()
+    register_lena(lena)
 
     storage = RedisStorage2() if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')

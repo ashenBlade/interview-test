@@ -3,6 +3,9 @@ import logging
 from aiogram import Dispatcher
 from aiogram.types import Message, BotCommand
 
+from tgbot.models.sql import User
+from tgbot.services.lena import Lena, get_lena
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +27,20 @@ async def admin_command_hello(msg: Message):
 
 
 async def admin_command_get_users(msg: Message):
-    await answer_not_implemented(msg)
+    def format_user(user: User):
+        return f'''<b>{user.fullname}</b>
+            - id: {user.id}
+            - youtrackId: {user.youtrackId}
+            - telegramId: {user.telegramId}
+            - timettaId: {user.timettaId}
+            - is admin: {user.isAdmin}
+        '''
+    lena: Lena = get_lena()
+    users = await lena.get_all_users_async()
+    formatted = '\n'.join(list(map(format_user, users)))
+    answer = 'Зарегистрированные пользователи:\n{}'.format(formatted)
+    await msg.answer(text=answer)
+    # await answer_not_implemented(msg)
 
 
 async def admin_command_promote(msg: Message):
