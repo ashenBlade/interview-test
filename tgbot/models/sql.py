@@ -14,32 +14,43 @@ user_project = Table(
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    fullname = Column(String, nullable=True)
-    youtrackId = Column(Integer, nullable=True, unique=True)
-    timettaId = Column(String, nullable=True, unique=True)
-    telegramId = Column(Integer, nullable=True, unique=True)
-    idAdmin = Column(Boolean, nullable=False, default=False)
-    privateChatTelegramId = Column(Integer, nullable=True, unique=True)
+    id = Column(Integer, primary_key=True, name='id')
+    fullname = Column(String, nullable=True, name='fullname')
+    youtrackId = Column(Integer, nullable=True, unique=True, name='youtrack_id')
+    timettaId = Column(String, nullable=True, unique=True, name='timetta_id')
+    telegramId = Column(Integer, nullable=True, unique=True, name='telegram_id')
+    isAdmin = Column(Boolean, nullable=True, name='is_admin')
+    privateChatTelegramId = Column(Integer, nullable=True, unique=True, name='private_chat_telegram_id')
     projects = relationship('Project', secondary=user_project, back_populates='users')
 
-    def __init__(self, fullname, youtrackId, timettaId, telegramId, isAdmin, privateChatTelegramId):
-        self.telegramId = telegramId
-        self.isAdmin = isAdmin
-        self.privateChatTelegramId = privateChatTelegramId
-        self.timettaId = timettaId
-        self.youtrackId = youtrackId
+    def __init__(self, fullname, youtrack_id, timetta_id, telegram_id, is_admin, private_chat_telegram_id):
+        self.telegramId = telegram_id
+        self.isAdmin = is_admin
+        self.privateChatTelegramId = private_chat_telegram_id
+        self.timettaId = timetta_id
+        self.youtrackId = youtrack_id
         self.fullname = fullname
 
-    def __str__(self):
-        return f'User({self.id}, "{self.fullname}")'
+    def to_string(self):
+        return f'User({self.id}, ' \
+               f'"{self.fullname}", ' \
+               f'{self.youtrackId}, ' \
+               f'{self.timettaId}, ' \
+               f'{self.telegramId}, ' \
+               f'{self.isAdmin}, ' \
+               f'{self.privateChatTelegramId})'
 
+    def __str__(self):
+        return self.to_string()
+
+    def __repr__(self):
+        return self.to_string()
 
 class Project(Base):
     __tablename__ = 'projects'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    youtrackId = Column(String, nullable=False)
+    id = Column(Integer, primary_key=True, name='id')
+    name = Column(String, nullable=False, name='name')
+    youtrackId = Column(String, nullable=False, name='youtrack_id')
     users = relationship('User', secondary=user_project, back_populates='projects')
 
     def __init__(self, name, youtrackId):

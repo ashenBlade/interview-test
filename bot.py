@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.types import BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from tgbot.config import load_config, Config
 from tgbot.filters.admin import AdminFilter
@@ -46,7 +47,9 @@ async def register_default_commands_async(dp: Dispatcher):
 
 
 def register_dependencies(config: Config):
-    register_lena(Lena())
+    db_url = f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}"
+    engine = create_async_engine(db_url, echo=True)
+    register_lena(Lena(engine))
     youtrack_server = config.yt.address
     timetta_server = config.tt.address
     register_report_downloader(YouTrackReportDownloader())
