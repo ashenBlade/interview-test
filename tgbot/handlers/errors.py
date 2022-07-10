@@ -4,20 +4,20 @@ from aiogram import Dispatcher
 from aiogram.types import Update
 from aiogram.utils.exceptions import MessageError, TelegramAPIError
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 async def global_error_handler(update: Update, ex: Exception):
     if not isinstance(ex, TelegramAPIError):
-        logger.error(f'Not Telegram API exception caught: {ex}')
+        _logger.error(f'Not Telegram API exception caught: {ex}')
         return True
 
     if isinstance(ex, MessageError):
-        logger.error('Message error')
+        _logger.error('Message error')
         return True
 
     if isinstance(ex, TelegramAPIError):
-        logger.error(f'Telegram api error {ex}')
+        _logger.error(f'Telegram api error {ex}')
         return True
 
     return False

@@ -1,5 +1,4 @@
 from aiogram.types import BotCommand
-from typing import Callable, Any, Coroutine
 
 
 class CommandPair:
