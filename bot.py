@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+import environs
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
@@ -46,17 +47,19 @@ async def register_default_commands_async(dp: Dispatcher):
 
 def register_dependencies(config: Config):
     register_lena(Lena())
+    youtrack_server = config.yt.address
+    timetta_server = config.tt.address
     register_report_downloader(YouTrackReportDownloader())
     register_report_formatter(HtmlReportFormatter())
 
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-    )
-    logger = logging.getLogger(__name__)
     config = load_config(".env")
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s')
+    logger = logging.getLogger(__name__)
 
     storage = RedisStorage2() if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')

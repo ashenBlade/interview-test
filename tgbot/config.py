@@ -24,9 +24,21 @@ class Miscellaneous:
 
 
 @dataclass
+class YouTrack:
+    address: str
+
+
+@dataclass
+class Timetta:
+    address: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DbConfig
+    yt: YouTrack
+    tt: Timetta
     misc: Miscellaneous
 
 
@@ -46,5 +58,7 @@ def load_config(path: str = None):
             user=env.str('DB_USER'),
             database=env.str('DB_NAME')
         ),
-        misc=Miscellaneous()
+        misc=Miscellaneous(),
+        yt=YouTrack(address=env.url('YOUTRACK_URL')),
+        tt=Timetta(address=env.url('TIMETTA_URL'))
     )
