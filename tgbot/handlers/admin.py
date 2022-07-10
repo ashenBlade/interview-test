@@ -2,7 +2,9 @@ import logging
 from typing import Iterable
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters import Text, ChatTypeFilter
-from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton, ChatType
+from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton, ChatType, InlineKeyboardMarkup, \
+    InlineKeyboardButton, CallbackQuery
+from aiogram.utils.callback_data import CallbackData
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.misc.command_pair import CommandPair
@@ -40,8 +42,47 @@ async def admin_command_promote(msg: Message):
     await answer_not_implemented(msg)
 
 
+_get_report_callback_data = CallbackData('report', 'period')
+_REPORT_YESTERDAY = 'yesterday'
+_REPORT_CURR_WEEK = 'curr_week'
+_REPORT_CURR_MONTH = 'curr_month'
+
+
 async def admin_command_get_report(msg: Message):
-    await answer_not_implemented(msg)
+    await msg.answer('Отчет за какой период вы хотите получить?', reply_markup=get_get_report_inline_keyboard())
+
+
+def log_report_for_period(call: CallbackQuery, period: str):
+    def format_period(p):
+        return 'вчера' if p == _REPORT_YESTERDAY \
+            else 'текущий месяц' if p == _REPORT_CURR_MONTH \
+            else 'текущая неделя' if p == _REPORT_CURR_WEEK \
+            else f'неизвестный период ({p})'
+    _logger.info(f'Получен запрос на отчет за {format_period(period)} '
+                 f'от админа {call.from_user.id} {call.from_user.full_name}')
+
+
+async def admin_get_report_callback_yesterday(call: CallbackQuery):
+    log_report_for_period(call, _REPORT_YESTERDAY)
+    await call.message.answer(text='Пока нельзя получить отчет за вчера')
+
+
+async def admin_get_report_callback_curr_week(call: CallbackQuery):
+    log_report_for_period(call, _REPORT_CURR_WEEK)
+    await call.message.answer(text='Пока нельзя получить отчет за текущую неделю')
+
+
+async def admin_get_report_callback_curr_month(call: CallbackQuery):
+    log_report_for_period(call, _REPORT_CURR_MONTH)
+    await call.message.answer(text='Пока нельзя получить отчет за текущий месяц')
+
+
+async def admin_get_report_callback_unknown(call: CallbackQuery):
+    [_, period] = call.data.split(':')
+    _logger.warning(f'Запрос на получение отчета за неизвествный период ({period}) '
+                    f'от пользователя ({call.from_user.id} {call.from_user.full_name}). '
+                    f'Callback data: {call.data}')
+    await call.answer('Неизвестный период', show_alert=False)
 
 
 _admin_commands: list[CommandPair] = [
@@ -50,6 +91,19 @@ _admin_commands: list[CommandPair] = [
     CommandPair(admin_command_promote, BotCommand('promote', 'Повысить пользователя до статуса админа'), 'Права админа'),
     CommandPair(admin_command_hello, BotCommand('admin', 'Начать сессию админа'), 'Я админ')
 ]
+
+
+def get_get_report_inline_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='Вчера',
+                                  callback_data=_get_report_callback_data.new(_REPORT_YESTERDAY))],
+            [InlineKeyboardButton(text='Текущая неделя',
+                                  callback_data=_get_report_callback_data.new(_REPORT_CURR_WEEK))],
+            [InlineKeyboardButton(text='Текущий месяц',
+                                  callback_data=_get_report_callback_data.new(_REPORT_CURR_MONTH))],
+        ],
+    )
 
 
 def get_default_admin_keyboard() -> ReplyKeyboardMarkup:
@@ -74,3 +128,21 @@ def register_admin_handlers(dp: Dispatcher):
                                     AdminFilter(is_admin=True),
                                     ChatTypeFilter([ChatType.PRIVATE]),
                                     Text(equals=p.text))
+
+    dp.register_callback_query_handler(admin_get_report_callback_yesterday,
+                                       AdminFilter(is_admin=True),
+                                       ChatTypeFilter([ChatType.PRIVATE]),
+                                       _get_report_callback_data.filter(period=_REPORT_YESTERDAY))
+    dp.register_callback_query_handler(admin_get_report_callback_curr_month,
+                                       AdminFilter(is_admin=True),
+                                       ChatTypeFilter([ChatType.PRIVATE]),
+                                       _get_report_callback_data.filter(period=_REPORT_CURR_MONTH))
+    dp.register_callback_query_handler(admin_get_report_callback_curr_week,
+                                       AdminFilter(is_admin=True),
+                                       ChatTypeFilter([ChatType.PRIVATE]),
+                                       _get_report_callback_data.filter(period=_REPORT_CURR_WEEK))
+    dp.register_callback_query_handler(admin_get_report_callback_unknown,
+                                       AdminFilter(),
+                                       ChatTypeFilter([ChatType.PRIVATE]),
+                                       _get_report_callback_data.filter())
+
