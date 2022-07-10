@@ -1,8 +1,8 @@
 import logging
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters import Text
-from aiogram.types import BotCommand, Message
+from aiogram.dispatcher.filters import Text, ChatTypeFilter
+from aiogram.types import BotCommand, Message, ChatType
 
 from tgbot.misc.command_pair import CommandPair
 
@@ -23,8 +23,12 @@ _group_commands = [
 
 def register_group_handlers(dp: Dispatcher):
     for p in _group_commands:
-        dp.register_message_handler(p.handler, commands=[p.command.command])
-        dp.register_message_handler(p.handler, Text(equals=p.text))
+        dp.register_message_handler(p.handler,
+                                    ChatTypeFilter(chat_type=[ChatType.GROUP, ChatType.SUPERGROUP]),
+                                    commands=[p.command.command])
+        dp.register_message_handler(p.handler,
+                                    ChatTypeFilter(chat_type=[ChatType.GROUP, ChatType.SUPER_GROUP]),
+                                    Text(equals=p.text))
 
 
 def get_group_commands():

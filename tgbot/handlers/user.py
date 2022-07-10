@@ -3,8 +3,8 @@ import logging
 from typing import Iterable
 
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters import Text
-from aiogram.types import BotCommand, Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.dispatcher.filters import Text, ChatTypeFilter
+from aiogram.types import BotCommand, Message, ReplyKeyboardMarkup, KeyboardButton, ChatType
 
 from tgbot.misc.command_pair import CommandPair
 
@@ -35,8 +35,12 @@ def get_default_user_keyboard():
 
 def register_user_handlers(dp: Dispatcher):
     for p in _user_commands:
-        dp.register_message_handler(p.handler, commands=[p.command.command])
-        dp.register_message_handler(p.handler, Text(equals=p.text))
+        dp.register_message_handler(p.handler,
+                                    ChatTypeFilter([ChatType.PRIVATE]),
+                                    commands=[p.command.command])
+        dp.register_message_handler(p.handler,
+                                    ChatTypeFilter([ChatType.PRIVATE]),
+                                    Text(equals=p.text))
 
 
 def get_user_commands() -> list[BotCommand]:

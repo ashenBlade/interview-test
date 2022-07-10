@@ -1,8 +1,8 @@
 import logging
 from typing import Iterable
 from aiogram import Dispatcher
-from aiogram.dispatcher.filters import Text
-from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.dispatcher.filters import Text, ChatTypeFilter
+from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton, ChatType
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.misc.command_pair import CommandPair
@@ -66,5 +66,11 @@ def get_admin_commands() -> Iterable[BotCommand]:
 
 def register_admin_handlers(dp: Dispatcher):
     for p in _admin_commands:
-        dp.register_message_handler(p.handler, AdminFilter(is_admin=True), commands=[p.command.command])
-        dp.register_message_handler(p.handler, AdminFilter(is_admin=True), Text(equals=p.text))
+        dp.register_message_handler(p.handler,
+                                    AdminFilter(is_admin=True),
+                                    ChatTypeFilter([ChatType.PRIVATE]),
+                                    commands=[p.command.command])
+        dp.register_message_handler(p.handler,
+                                    AdminFilter(is_admin=True),
+                                    ChatTypeFilter([ChatType.PRIVATE]),
+                                    Text(equals=p.text))
