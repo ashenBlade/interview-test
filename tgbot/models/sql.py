@@ -46,6 +46,7 @@ class User(Base):
     def __repr__(self):
         return self.to_string()
 
+
 class Project(Base):
     __tablename__ = 'projects'
     id = Column(Integer, primary_key=True, name='id')
@@ -56,3 +57,12 @@ class Project(Base):
     def __init__(self, name, youtrackId):
         self.name = name
         self.youtrackId = youtrackId
+
+    def to_string(self):
+        return f'Project({self.id}, "{self.name}", {self.youtrackId})'
+
+    def __str__(self):
+        return self.to_string()
+
+    def __repr__(self):
+        return self.to_string()
