@@ -1,21 +1,14 @@
 import logging
-
+from typing import Iterable
 from aiogram import Dispatcher
 from aiogram.types import Message, BotCommand
 
+from tgbot.filters.admin import AdminFilter
+from tgbot.misc.command_pair import CommandPair
 from tgbot.models.sql import User
-from tgbot.services.lena import Lena, get_lena
+from tgbot.services import get_lena
 
-logger = logging.getLogger(__name__)
-
-
-def get_admin_commands():
-    return [
-        BotCommand('get_users', 'Получить зарегистрированных работников'),
-        BotCommand('get_report', 'Получить отчет по проектам'),
-        BotCommand('promote', 'Повысить пользователя до статуса админа'),
-        BotCommand('hello', 'Поприветствовать бота')
-    ]
+_logger = logging.getLogger(__name__)
 
 
 async def answer_not_implemented(msg: Message):
@@ -35,20 +28,33 @@ async def admin_command_get_users(msg: Message):
             - timettaId: {user.timettaId}
             - is admin: {user.isAdmin}
         '''
-    lena: Lena = get_lena()
+    lena = get_lena()
     users = await lena.get_all_users_async()
     formatted = '\n'.join(list(map(format_user, users)))
     answer = 'Зарегистрированные пользователи:\n{}'.format(formatted)
     await msg.answer(text=answer)
-    # await answer_not_implemented(msg)
 
 
 async def admin_command_promote(msg: Message):
     await answer_not_implemented(msg)
 
 
-def register_admin_handlers(dp: Dispatcher):
-    dp.register_message_handler(admin_command_hello, commands=['hello'])
-    dp.register_message_handler(admin_command_get_users, commands=['get_users'])
-    dp.register_message_handler(admin_command_promote, commands=['promote'])
+async def admin_command_get_report(msg: Message):
+    await answer_not_implemented(msg)
 
+
+_admin_commands: list[CommandPair] = [
+    CommandPair(admin_command_promote, BotCommand('promote', 'Повысить пользователя до статуса админа')),
+    CommandPair(admin_command_hello, BotCommand('hello', 'Поприветствовать бота')),
+    CommandPair(admin_command_get_users, BotCommand('get_users', 'Получить список зарегистированных пользователей')),
+    CommandPair(admin_command_get_report, BotCommand('get_report', 'Получить отчет за указанный период'))
+]
+
+
+def get_admin_commands() -> Iterable[BotCommand]:
+    return [pair.command for pair in _admin_commands]
+
+
+def register_admin_handlers(dp: Dispatcher):
+    for p in _admin_commands:
+        dp.register_message_handler(p.handler, AdminFilter(is_admin=True), commands=[p.command.command])

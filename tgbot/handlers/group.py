@@ -1,16 +1,30 @@
+import logging
+
 from aiogram import Dispatcher
 from aiogram.types import BotCommand, Message
 
+from tgbot.misc.command_pair import CommandPair
 
-def get_group_commands():
-    return [
-        BotCommand('init', 'Инициализировать рабочий чат')
-    ]
+_logger = logging.getLogger(__name__)
 
 
 async def group_command_init(msg: Message):
+    _logger.debug('Запрос на инициализацию рабочего чата ({}, {}) от пользователя {}'
+                  .format(msg.chat.id,
+                          msg.chat.full_name,
+                          msg.from_user.id))
     await msg.answer('Команда еще не реализована')
+
+_group_commands = [
+    CommandPair(group_command_init, BotCommand('init', 'Инициализировать рабочий чат'))
+]
 
 
 def register_group_handlers(dp: Dispatcher):
-    dp.register_message_handler(group_command_init, commands=['init'])
+    for p in _group_commands:
+        dp.register_message_handler(p.handler, commands=[p.command.command])
+
+
+def get_group_commands():
+    return [p.command for p in _group_commands]
+
