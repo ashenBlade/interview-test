@@ -1,4 +1,5 @@
-from tgbot.services.abstractions import ILena, IReportFormatter, IReportDownloader
+from tgbot.models.timesheet import Timesheet
+from tgbot.services.abstractions import ILena, IReportFormatter, IReportDownloader, ITimesheetDownloader
 
 _lena: ILena | None = None
 
@@ -39,3 +40,17 @@ def get_report_formatter() -> IReportFormatter:
 def register_report_formatter(formatter: IReportFormatter):
     global _report_formatter
     _report_formatter = formatter
+
+
+_timesheet_downloader: ITimesheetDownloader | None = None
+
+
+def get_timesheet_downloader() -> Timesheet:
+    if not _timesheet_downloader:
+        raise RuntimeError('Timesheet downloader in not initialized')
+    return _timesheet_downloader
+
+
+def register_timesheet_downloader(timesheet: ITimesheetDownloader):
+    global _timesheet_downloader
+    _timesheet_downloader = timesheet

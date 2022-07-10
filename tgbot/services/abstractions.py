@@ -20,3 +20,9 @@ class IReportFormatter:
     @abc.abstractmethod
     def format(self, report: Report) -> str:
         pass
+
+
+class ITimesheetDownloader:
+    @abc.abstractmethod
+    async def download_timesheet_async(self, user_id):
+        pass
