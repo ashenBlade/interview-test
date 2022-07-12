@@ -3,8 +3,9 @@ from typing import Iterable
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters import Text, ChatTypeFilter
 from aiogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton, ChatType, InlineKeyboardMarkup, \
-    InlineKeyboardButton, CallbackQuery
+    InlineKeyboardButton, CallbackQuery, Update
 from aiogram.utils.callback_data import CallbackData
+from setuptools.msvc import msvc9_find_vcvarsall
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.misc.command_pair import CommandPair
@@ -114,7 +115,7 @@ def get_default_admin_keyboard() -> ReplyKeyboardMarkup:
     )
 
 
-def get_admin_commands() -> Iterable[BotCommand]:
+def get_admin_commands():
     return [pair.command for pair in _admin_commands]
 
 

@@ -7,8 +7,8 @@ Base = declarative_base()
 user_project = Table(
     'users_projects',
     Base.metadata,
-    Column('project_id', ForeignKey('projects.id', primary_key=True)),
-    Column('user_id', ForeignKey('users.id', primary_key=True)),
+    Column('project_id', ForeignKey('projects.id'), primary_key=True),
+    Column('user_id', ForeignKey('users.id'), primary_key=True),
 )
 
 
