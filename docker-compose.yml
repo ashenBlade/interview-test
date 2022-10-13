@@ -1,0 +1,14 @@
+version: '3.0'
+
+services: 
+  google-api-prober:
+    build:
+      dockerfile: InterviewTest.WebHost.ApiProber/Dockerfile
+      context: .
+    environment:
+      - API_URL=https://google.com
+      - RPM=5
+      - HTTP_METHOD=GET
+  
+  
+  
