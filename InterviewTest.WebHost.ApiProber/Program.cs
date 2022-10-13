@@ -12,6 +12,10 @@ var host = Host.CreateDefaultBuilder(args)
                     services.AddScoped<IApiProber, SingleEndpointApiProber>();
                     services.AddHostedService<ApiProberWorker>();
                 })
+               .ConfigureLogging(loggingBuilder =>
+                {
+                    loggingBuilder.AddJsonConsole();
+                })
                .Build();
 
 await host.RunAsync();
