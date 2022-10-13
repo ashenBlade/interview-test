@@ -4,5 +4,5 @@ namespace InterviewTest.WebHost.ApiProber.Interfaces;
 
 public interface IApiProber
 {
-    Task<ProbeResult> ProbeAsync();
+    Task<ProbeResult> ProbeAsync(CancellationToken token = default);
 }
