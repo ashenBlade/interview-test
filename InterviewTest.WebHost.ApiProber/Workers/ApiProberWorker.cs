@@ -7,26 +7,35 @@ public class ApiProberWorker : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ApiProberWorker> _logger;
+    private readonly int _rpm;
 
-    public ApiProberWorker(IServiceProvider serviceProvider, ILogger<ApiProberWorker> logger)
+    private const double SecondsInMinute = 60;
+    private TimeSpan RpmDelay => TimeSpan.FromMilliseconds(SecondsInMinute / _rpm);
+
+    public ApiProberWorker(IServiceProvider serviceProvider, ILogger<ApiProberWorker> logger, int rpm)
     {
+        if (rpm < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rpm), rpm, "RPM must be positive");
+        }
+        
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _rpm = rpm;
     }
 
     protected override async Task ExecuteAsync(CancellationToken token)
     {
-        const int rpm = 5;
-        const int millisecondsInMinute = 60 * 1000;
-        const int delayTimeMilliseconds = millisecondsInMinute / rpm;
-        var standardDelay = TimeSpan.FromMilliseconds(delayTimeMilliseconds);
+        var betweenFireDelay = RpmDelay;
         while (!token.IsCancellationRequested)
         {
             var startTime = DateTime.Now;
+            _logger.LogTrace("Start probing at: {StartTime}", startTime);
             FireApiProbe();
             var executionTime = DateTime.Now - startTime;
-            var currentDelay = standardDelay - executionTime;
-            Console.WriteLine(currentDelay);
+            _logger.LogTrace("Execution time: {ExecutionTime}", executionTime);
+            var currentDelay = betweenFireDelay - executionTime;
+            _logger.LogTrace("Sleeping for: {Delay}", currentDelay);
             await Task.Delay(currentDelay.Milliseconds, token);
         }
         void FireApiProbe()

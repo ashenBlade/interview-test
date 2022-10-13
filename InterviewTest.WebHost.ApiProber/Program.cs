@@ -1,4 +1,3 @@
-using InterviewTest.WebHost.ApiProber;
 using InterviewTest.WebHost.ApiProber.Interfaces;
 using InterviewTest.WebHost.ApiProber.Services;
 using InterviewTest.WebHost.ApiProber.Workers;
@@ -8,7 +7,8 @@ IHost host = Host.CreateDefaultBuilder(args)
                   {
                       services.AddScoped<HttpClient>();
                       services.AddScoped<IApiProber>(s =>
-                                                         new SingleEndpointApiProber(s.GetRequiredService<HttpClient>(),
+                                                         new SingleEndpointApiProber(s.GetRequiredService<ILogger<SingleEndpointApiProber>>(), 
+                                                                                     s.GetRequiredService<HttpClient>(),
                                                                                      new Uri("https://google.com"), 
                                                                                      HttpMethod.Get));
                       services.AddHostedService<ApiProberWorker>();
