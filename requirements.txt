@@ -1,5 +1,0 @@
-aiogram~=2.18
-aioredis~=2.0
-environs~=9.0
-SQLAlchemy~=1.4.39
-asyncpg~=0.26.0
