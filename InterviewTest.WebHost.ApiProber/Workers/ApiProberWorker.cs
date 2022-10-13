@@ -1,3 +1,4 @@
+using InterviewTest.WebHost.ApiProber.Infrastructure;
 using InterviewTest.WebHost.ApiProber.Interfaces;
 
 namespace InterviewTest.WebHost.ApiProber.Workers;
@@ -10,8 +11,11 @@ public class ApiProberWorker : BackgroundService
 
     private const double SecondsInMinute = 60;
 
-    public ApiProberWorker(IServiceProvider serviceProvider, ILogger<ApiProberWorker> logger, int rpm)
+    public ApiProberWorker(IServiceProvider serviceProvider, 
+                           ILogger<ApiProberWorker> logger,
+                           ProbeSettings settings)
     {
+        var rpm = settings.Rpm;
         if (rpm < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(rpm), rpm, "RPM must be positive");
@@ -24,7 +28,7 @@ public class ApiProberWorker : BackgroundService
     
     protected override async Task ExecuteAsync(CancellationToken token)
     {
-        _logger.LogInformation("Starting background API probing worker");
+        _logger.LogInformation("Starting background service API probing worker with requests delay: {Delay}", _betweenRequestsDelay);
         while (!token.IsCancellationRequested)
         {
             var startTime = DateTime.Now;
@@ -33,7 +37,7 @@ public class ApiProberWorker : BackgroundService
             var executionTime = DateTime.Now - startTime;
             var currentDelay = _betweenRequestsDelay - executionTime;
             _logger.LogDebug("Sleeping for: {Delay}", currentDelay);
-            await Task.Delay(currentDelay.Milliseconds, token);
+            await Task.Delay(currentDelay, token);
         }
         
         void FireApiProbe()

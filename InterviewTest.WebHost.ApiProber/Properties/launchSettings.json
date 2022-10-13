@@ -4,7 +4,10 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "RPM": "60",
+        "API_URL": "https://google.com",
+        "HTTP_METHOD": "get"
       }
     }
   }

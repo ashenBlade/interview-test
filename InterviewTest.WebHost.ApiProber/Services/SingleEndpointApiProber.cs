@@ -1,3 +1,4 @@
+using InterviewTest.WebHost.ApiProber.Infrastructure;
 using InterviewTest.WebHost.ApiProber.Interfaces;
 using InterviewTest.WebHost.ApiProber.Models;
 
@@ -10,18 +11,14 @@ public class SingleEndpointApiProber: IApiProber
     private readonly Uri _endpoint;
     private readonly HttpMethod _method;
 
-    /// <param name="client">HTTP client used to send HTTP calls</param>
-    /// <param name="endpoint">Endpoint to send HTTP calls</param>
-    /// <param name="method">HTTP method to use. "POST" by default</param>
     public SingleEndpointApiProber(ILogger<SingleEndpointApiProber> logger, 
                                    HttpClient client, 
-                                   Uri endpoint, 
-                                   HttpMethod? method = null)
+                                   ProbeSettings settings)
     {
         _logger = logger;
         _client = client;
-        _endpoint = endpoint;
-        _method = method ?? HttpMethod.Post;
+        _endpoint = settings.ApiEndpoint;
+        _method = settings.HttpMethod;
     }
 
 
