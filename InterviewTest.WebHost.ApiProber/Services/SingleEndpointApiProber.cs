@@ -30,10 +30,10 @@ public class SingleEndpointApiProber: IApiProber
         try
         {
             using var message = new HttpRequestMessage(_method, _endpoint);
-            _logger.LogTrace("Created HttpRequestMessage");
-            _logger.LogInformation("Start HTTP request to: {Url}", _endpoint);
+            _logger.LogDebug("Created HttpRequestMessage");
+            _logger.LogDebug("Start HTTP request to: {Url}", _endpoint);
             using var response = await _client.SendAsync(message, token);
-            _logger.LogInformation("End HTTP request to: {Url}", _endpoint);
+            _logger.LogDebug("End HTTP request to: {Url}", _endpoint);
             if (response.IsSuccessStatusCode)
             {
                 return ProbeResult.Success();
