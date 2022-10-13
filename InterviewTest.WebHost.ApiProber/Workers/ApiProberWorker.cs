@@ -29,15 +29,15 @@ public class ApiProberWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken token)
     {
         _logger.LogInformation("Starting background service API probing worker with requests delay: {Delay}", _betweenRequestsDelay);
+        var nextFireTime = DateTime.Now + _betweenRequestsDelay;
         while (!token.IsCancellationRequested)
         {
-            var startTime = DateTime.Now;
-            _logger.LogDebug("Start probing at: {StartTime}", startTime);
+            _logger.LogDebug("Start probing at: {StartTime}", DateTime.Now);
             FireApiProbe();
-            var executionTime = DateTime.Now - startTime;
-            var currentDelay = _betweenRequestsDelay - executionTime;
+            var currentDelay = nextFireTime - DateTime.Now;
             _logger.LogDebug("Sleeping for: {Delay}", currentDelay);
             await Task.Delay(currentDelay, token);
+            nextFireTime += _betweenRequestsDelay;
         }
         
         void FireApiProbe()
